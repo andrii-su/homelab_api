@@ -32,8 +32,8 @@ pub async fn service_stats(
         .ok_or_else(|| ApiError::NotFound("no stats for container".to_string()))??;
 
     // CPU percent: delta(container) / delta(system) * online CPUs * 100.
-    let cpu_delta = s.cpu_stats.cpu_usage.total_usage as f64
-        - s.precpu_stats.cpu_usage.total_usage as f64;
+    let cpu_delta =
+        s.cpu_stats.cpu_usage.total_usage as f64 - s.precpu_stats.cpu_usage.total_usage as f64;
     let sys_delta = s.cpu_stats.system_cpu_usage.unwrap_or(0) as f64
         - s.precpu_stats.system_cpu_usage.unwrap_or(0) as f64;
     let online = s.cpu_stats.online_cpus.unwrap_or(1).max(1) as f64;

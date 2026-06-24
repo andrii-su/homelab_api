@@ -43,7 +43,9 @@ pub async fn notify(
         }
         None => {
             tracing::warn!(title = %event.title, message = %event.message, "WEBHOOK_URL unset — event logged, not relayed");
-            Ok(Json(json!({ "relayed": false, "logged": true, "title": event.title })))
+            Ok(Json(
+                json!({ "relayed": false, "logged": true, "title": event.title }),
+            ))
         }
     }
 }

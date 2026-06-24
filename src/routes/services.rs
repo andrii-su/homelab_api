@@ -61,7 +61,9 @@ pub async fn start_service(
         .start_container(&name, None::<StartContainerOptions<String>>)
         .await
         .map_err(map_not_found)?;
-    Ok(Json(json!({ "service": name, "action": "start", "ok": true })))
+    Ok(Json(
+        json!({ "service": name, "action": "start", "ok": true }),
+    ))
 }
 
 /// POST /api/services/:name/stop — stop a running container. (auth)
@@ -75,7 +77,9 @@ pub async fn stop_service(
         .stop_container(&name, Some(opts))
         .await
         .map_err(map_not_found)?;
-    Ok(Json(json!({ "service": name, "action": "stop", "ok": true })))
+    Ok(Json(
+        json!({ "service": name, "action": "stop", "ok": true }),
+    ))
 }
 
 /// POST /api/services/:name/restart — restart a container. (auth)
@@ -89,7 +93,9 @@ pub async fn restart_service(
         .restart_container(&name, Some(opts))
         .await
         .map_err(map_not_found)?;
-    Ok(Json(json!({ "service": name, "action": "restart", "ok": true })))
+    Ok(Json(
+        json!({ "service": name, "action": "restart", "ok": true }),
+    ))
 }
 
 /// GET /api/services/:name/logs — last N lines of container logs. (auth)
