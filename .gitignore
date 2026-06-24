@@ -1,0 +1,18 @@
+# Rust
+/target
+**/*.rs.bk
+Cargo.lock.orig
+
+# Secrets — NEVER commit
+.env
+.env.local
+*.p8
+*.pem
+*.key
+secrets/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp

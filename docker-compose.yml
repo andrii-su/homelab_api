@@ -1,0 +1,43 @@
+---
+# homelab_api — Rust service-control + push relay API.
+# Deploy as a homelab stack: copy into ~/homelab/stacks/api/ (or run standalone).
+#
+# SECURITY: mounting the Docker socket grants this container root-equivalent
+# control of the host's containers. Expose ONLY through the gateway behind the
+# bearer token + (ideally) Tailscale — never publish port 8087 to the WAN.
+
+services:
+  api:
+    build: .
+    # Or pin a published image once CI pushes one:
+    # image: ghcr.io/andrii-su/homelab_api:latest
+    container_name: homelab_api
+    environment:
+      BIND_ADDR: 0.0.0.0:8087
+      API_TOKEN: ${API_TOKEN:?API_TOKEN not set in .env}
+      WEBHOOK_URL: ${WEBHOOK_URL:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      RUST_LOG: ${RUST_LOG:-info}
+    ports:
+    - "8087:8087"
+    volumes:
+    # Full Docker control needs the socket. A `:ro` bind does NOT restrict the
+    # API (the daemon honors any command over the socket) — real isolation
+    # means a socket-proxy (e.g. tecnativa/docker-socket-proxy) limiting verbs.
+    - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      homelab:
+        aliases:
+        - api
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8087/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+networks:
+  homelab:
+    external: true
+    name: homelab
