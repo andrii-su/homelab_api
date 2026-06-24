@@ -16,10 +16,16 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates curl && rm -rf /var/lib/apt/lists/*
 
-# Run as non-root.
-RUN useradd -r -u 10001 appuser
+# Docker CLI + compose plugin (static Go binaries) for /api/stacks actions.
+COPY --from=docker:27-cli /usr/local/bin/docker /usr/local/bin/docker
+COPY --from=docker:27-cli /usr/local/libexec/docker/cli-plugins/docker-compose \
+    /usr/local/libexec/docker/cli-plugins/docker-compose
+
 COPY --from=build /app/target/release/homelab_api /usr/local/bin/homelab_api
 
+# Run as non-root. The host docker.sock group GID is injected at runtime via
+# compose `group_add` so the CLI can reach the socket without root.
+RUN useradd -r -u 10001 appuser
 USER appuser
 EXPOSE 8087
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \

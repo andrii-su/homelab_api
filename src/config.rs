@@ -11,6 +11,8 @@ pub struct Config {
     pub webhook_url: Option<String>,
     /// Comma-separated allowed CORS origins ("*" allows any).
     pub cors_origins: String,
+    /// Path to the homelab repo root (holds stacks/ + .env) for compose actions.
+    pub repo_root: String,
 }
 
 impl Config {
@@ -25,6 +27,7 @@ impl Config {
             api_token,
             webhook_url: env::var("WEBHOOK_URL").ok().filter(|s| !s.is_empty()),
             cors_origins: env::var("CORS_ORIGINS").unwrap_or_else(|_| "*".to_string()),
+            repo_root: env::var("REPO_ROOT").unwrap_or_else(|_| "/homelab".to_string()),
         })
     }
 }

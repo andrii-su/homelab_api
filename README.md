@@ -22,6 +22,8 @@ dashboard (`:3002`) with a typed, authenticated API.
 | POST | `/api/services/:name/restart` | ✅ | Restart a container |
 | GET  | `/api/services/:name/logs` | ✅ | Last 200 log lines |
 | GET  | `/api/services/:name/stats` | ✅ | One-shot CPU/memory snapshot |
+| GET  | `/api/stacks` | ✅ | List deployable stacks + running/total counts |
+| POST | `/api/stacks/:name/:action` | ✅ | `docker compose` a stack — action ∈ `up`/`down`/`restart` |
 | POST | `/api/notify` | ✅ | Push relay → forwards to `WEBHOOK_URL` |
 
 Auth = `Authorization: Bearer <API_TOKEN>`.
@@ -37,6 +39,22 @@ Container hooks / monitoring alerts `POST /api/notify`:
 The API forwards the JSON to `WEBHOOK_URL` (ntfy, Slack-compatible, or a custom
 APNs proxy for native iOS push — swap the target without touching the app). If
 `WEBHOOK_URL` is unset, events are logged so the pipeline works during setup.
+
+### Launching whole stacks
+
+`/api/services/:name/start` only starts an **already-created** container. To
+bring up a stack that isn't running yet (e.g. `data` = Airflow), use the stack
+endpoints — they shell out to `docker compose` against the mounted homelab repo:
+
+```bash
+curl -H "Authorization: Bearer $API_TOKEN" http://api.lab.home.arpa/api/stacks
+curl -X POST -H "Authorization: Bearer $API_TOKEN" \
+     http://api.lab.home.arpa/api/stacks/data/up      # start Airflow
+```
+
+Requires the homelab repo mounted at `REPO_ROOT` (default `/homelab`) and the
+Docker CLI + compose plugin (baked into the image). Stack names are validated
+against the repo's `stacks/` dirs — no path traversal.
 
 ## Run
 

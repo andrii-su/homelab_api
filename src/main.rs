@@ -66,6 +66,11 @@ fn build_router(state: AppState) -> Router {
             "/api/services/:name/stats",
             get(routes::stats::service_stats),
         )
+        .route("/api/stacks", get(routes::stacks::list_stacks))
+        .route(
+            "/api/stacks/:name/:action",
+            post(routes::stacks::stack_action),
+        )
         .route("/api/notify", post(routes::webhook::notify))
         .layer(middleware::from_fn_with_state(
             state.clone(),

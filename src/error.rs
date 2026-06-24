@@ -12,8 +12,6 @@ pub enum ApiError {
     #[error("not found: {0}")]
     NotFound(String),
 
-    // Reserved for input validation (e.g. rejecting malformed container names).
-    #[allow(dead_code)]
     #[error("bad request: {0}")]
     BadRequest(String),
 

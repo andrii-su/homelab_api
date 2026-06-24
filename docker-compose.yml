@@ -18,13 +18,22 @@ services:
       WEBHOOK_URL: ${WEBHOOK_URL:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-*}
       RUST_LOG: ${RUST_LOG:-info}
+      # Repo root inside the container; mounted below for compose stack actions.
+      REPO_ROOT: /homelab
     ports:
     - "8087:8087"
+    # GID of the host docker socket so the non-root user can use it. Find it
+    # with: `stat -f %g /var/run/docker.sock` (macOS) / `stat -c %g` (Linux).
+    group_add:
+    - ${DOCKER_GID:-0}
     volumes:
     # Full Docker control needs the socket. A `:ro` bind does NOT restrict the
     # API (the daemon honors any command over the socket) — real isolation
     # means a socket-proxy (e.g. tecnativa/docker-socket-proxy) limiting verbs.
     - /var/run/docker.sock:/var/run/docker.sock
+    # The homelab repo (compose files + .env) so /api/stacks can deploy stacks
+    # like `data` (airflow). Read-only — the API never writes to the repo.
+    - ${REPO_ROOT_HOST:-../homelab}:/homelab:ro
     networks:
       homelab:
         aliases:
